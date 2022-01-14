@@ -209,8 +209,7 @@ class _usedItemPageState extends State<usedItemPage> {
     );
   }
 
-  BottomNavigationBarItem _bottomNavigationBarItem(
-      String iconName, String label) {
+  BottomNavigationBarItem _bottomNavigationBarItem(String iconName, String label) {
     return BottomNavigationBarItem(
       icon: Padding(
         padding: const EdgeInsets.only(bottom: 5),
