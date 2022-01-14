@@ -1,25 +1,31 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'dart:developer';
+
+import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:intl/intl.dart';
 
-class usedItemPage extends StatefulWidget {
-  const usedItemPage({Key? key}) : super(key: key);
+class Home extends StatefulWidget {
+  const Home({Key? key}) : super(key: key);
 
   @override
-  _usedItemPageState createState() => _usedItemPageState();
+  _HomeState createState() => _HomeState();
 }
 
-class _usedItemPageState extends State<usedItemPage> {
+class _HomeState extends State<Home> {
   List<Map<String, String>> usedItems = [];
-
-  late int _currentPageIndex;
+  late String currentLocation;
+  final Map<String,String> locationTypeToString = {
+    "ara" : "아라동",
+    "yeouido" : "여의동",
+    "daebang" : "대방동",
+    "singil" : "신길동",
+  };
 
   @override
   void initState() {
     log("initState() 시작");
     super.initState();
-    _currentPageIndex = 0;
+    currentLocation = "yeouido";
     usedItems = [
       {
         "image": "assets/images/ara-1.jpg",
@@ -94,20 +100,58 @@ class _usedItemPageState extends State<usedItemPage> {
     ];
   }
 
+  final oCcy = new NumberFormat("#,###", "ko_KR");
+
+  String calcStringToWon(String priceString) {
+    return "${oCcy.format(int.parse(priceString))}원";
+  }
+
   PreferredSizeWidget _appbarWidget() {
     log("_appbarWidget 시작");
     return AppBar(
       title: GestureDetector(
-        onTap: () {
-          print("click");
-        },
-        child: Row(
-          children: [
-            Text("여의도동", style: Theme.of(context).textTheme.bodyText2),
-            Icon(Icons.arrow_drop_down, color: Colors.black),
-          ],
-        ),
-      ),
+          onTap: () {
+            print("click");
+          },
+          child: PopupMenuButton<String>(
+            shape: ShapeBorder.lerp(
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
+                1
+            ),
+            onSelected: (String where) {
+              setState(() {
+                currentLocation = where;
+              });
+            },
+            itemBuilder: (BuildContext context) {
+              // 내동네 리스트가 대체해야하는 부분
+              // 실제 당근 마켓에선 최소 1개 최대 2개를 지정할 수 있음
+              return [
+                 PopupMenuItem(
+                  value: "yeouido",
+                  child: Text("여의동"),
+                ),
+                PopupMenuItem(
+                  value: "daebang",
+                  child: Text("대방동"),
+                ),
+                PopupMenuItem(
+                  value: "singil",
+                  child: Text("신길동"),
+                ),
+              ];
+            },
+            child: Row(
+              children: [
+                Text(
+                  locationTypeToString[currentLocation]!,
+                  style: TextStyle(fontSize: 16, color: Colors.black),
+                ),
+                Icon(Icons.arrow_drop_down, color: Colors.black),
+              ],
+            ),
+          )),
       backgroundColor: Colors.orange,
       actions: [
         IconButton(
@@ -124,12 +168,6 @@ class _usedItemPageState extends State<usedItemPage> {
             )),
       ],
     );
-  }
-
-  final oCcy = new NumberFormat("#,###", "ko_KR");
-
-  String calcStringToWon(String priceString) {
-    return "${oCcy.format(int.parse(priceString))}원";
   }
 
   Widget _bodyWidget() {
@@ -209,61 +247,15 @@ class _usedItemPageState extends State<usedItemPage> {
     );
   }
 
-  BottomNavigationBarItem _bottomNavigationBarItem(
-      String iconName, String label) {
-    return BottomNavigationBarItem(
-      icon: Padding(
-        padding: const EdgeInsets.only(bottom: 5),
-        child: SvgPicture.asset(
-          "assets/svg/${iconName}.svg",
-          width: 22,
-        ),
-      ),
-      label: label,
-    );
-  }
-
-  Widget _bottomNaviagtionWidget() {
-    return BottomNavigationBar(
-      type: BottomNavigationBarType.fixed,
-      onTap: (int index) {
-        log("click BottomNavigationBar Index : ${index}");
-        setState(() {
-          _currentPageIndex = index;
-        });
-      },
-      selectedFontSize: 12,
-      currentIndex: _currentPageIndex,
-      backgroundColor: Colors.white,
-      unselectedItemColor: Colors.black,
-      selectedItemColor: Colors.black,
-      unselectedLabelStyle: TextStyle(color: Colors.black),
-      selectedLabelStyle: TextStyle(color: Colors.black),
-      items: [
-        _bottomNavigationBarItem("home_off", "홈"),
-        _bottomNavigationBarItem("notes_off", "동네생활"),
-        _bottomNavigationBarItem("chat_off", "채팅"),
-        _bottomNavigationBarItem("user_off", "나의 당근"),
-      ],
-    );
-  }
-
-  Widget _floatingActionButton(){
-    return FloatingActionButton(
-      child: Icon(Icons.edit),
-      backgroundColor: Colors.orange,
-      onPressed: () {
-        log("click edit btn");
-      });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _appbarWidget(),
       body: _bodyWidget(),
-      floatingActionButton: _floatingActionButton(),
-      bottomNavigationBar: _bottomNaviagtionWidget(),
     );
   }
 }
+
+// Widget _homePageWidget() {
+//
+// }
